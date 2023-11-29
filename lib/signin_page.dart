@@ -16,8 +16,7 @@ class _SigninPageState extends State<SigninPage> {
   String _email = "";
   String _password = "";
   void _signinemail() async {
-    BuildContext currentContext = context; // Capture the context
-
+    BuildContext currentContext = context; 
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _email,
@@ -25,12 +24,23 @@ class _SigninPageState extends State<SigninPage> {
       );
       User user = userCredential.user!;
       String userEmail = user.email!;
+      await userCredential.user!.updateProfile(displayName: 'Email Signup');
+    await userCredential.user!.reload();
+    userCredential = await _auth.signInWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
       // Use the captured context here
       Navigator.push(
-        currentContext,
-        MaterialPageRoute(builder: (context) => Home(userEmail: userEmail)),
-      );
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(
+          user: userCredential.user!,
+          userEmail: userCredential.user!.email ?? '',
+        ),
+      ),
+    );
     } catch (error) {
       String errorMessage = 'An error occurred. Please try again.';
 
@@ -54,21 +64,23 @@ class _SigninPageState extends State<SigninPage> {
     }
   }
   void _handleGoogleSignIN() async {
-        BuildContext currentContext = context;
-        try {
-          GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-          UserCredential userCredential =
-              await _auth.signInWithProvider(_googleAuthProvider);
-          String userEmail = userCredential.user?.email ?? "";
+  try {
+    GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+    UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
+    
+    String userEmail = userCredential.user?.email ?? "";
+    User user = userCredential.user!;
 
-          Navigator.push(
-            currentContext,
-            MaterialPageRoute(builder: (context) => Home(userEmail: userEmail)),
-          );
-        } catch (error) {
-          print(error);
-        }
-      }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(user: user, userEmail: userEmail),
+      ),
+    );
+  } catch (error) {
+    print(error);
+  }
+}
 
   @override
   Widget build(BuildContext context) {

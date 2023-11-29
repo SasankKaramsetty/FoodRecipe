@@ -140,7 +140,7 @@ class _SignupPageState extends State<SignupPage> {
                 onPressed: () {
                   if (_passwordController.text ==
                       _confirmPasswordController.text) {
-                    _emailsignup();
+                    _emailsignup(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -188,47 +188,74 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-  Future<void> _handleGoogleSignUP() async {
-    BuildContext currentContext = context;
-    try {
-      GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-      UserCredential userCredential =
-          await _auth.signInWithProvider(_googleAuthProvider);
-      String userEmail =
-          userCredential.user?.email ?? ""; 
-
-      Navigator.push(
-        currentContext,
-        MaterialPageRoute(builder: (context) => Home(userEmail: userEmail)),
-      );
-    } catch (error) {
-      print(error);
-    }
-  }
-
-  Future<void> _emailsignup() async {
-  BuildContext currentContext = context; 
-
+Future<void> _emailsignup(BuildContext context) async {
   try {
     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-      email: _email,
-      password: _password,
+      email: _emailController.text,
+      password: _passwordController.text,
     );
-    print("User Registered email: ${userCredential.user!.email}");
+
+    await userCredential.user!.updateProfile(displayName: 'Email Signup');
+    await userCredential.user!.reload();
+    userCredential = await _auth.signInWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
     Navigator.push(
-      currentContext,
-      MaterialPageRoute(builder: (context) => Home(userEmail: userCredential.user!.email!)),
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(
+          user: userCredential.user!,
+          userEmail: userCredential.user!.email ?? '',
+        ),
+      ),
+    );
+  } catch (error) {
+    
+   if (error is FirebaseAuthException) {
+      String errorMessage = 'Error during registration: ${error.message}';
+
+      if (error.code == 'email-already-in-use') {
+        errorMessage = 'The account already exists for that email.';
+      } else if (error.code == 'weak-password') {
+        errorMessage = 'Password should be at least 6 characters.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      print('Unexpected error during registration: $error');
+    }
+  }
+}
+
+
+  
+Future<void> _handleGoogleSignUP() async {
+  try {
+    GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+    UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
+    String userEmail = userCredential.user?.email ?? '';
+    await userCredential.user!.updateProfile(displayName: 'google');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(user: userCredential.user!, userEmail: userEmail),
+      ),
     );
   } catch (error) {
     print(error);
-    if (error is FirebaseAuthException) {
-      if (error.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      } else {
-        print('Error during registration: ${error.message}');
-      }
-    }
   }
 }
 
+
 }
+
+
+
+

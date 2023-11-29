@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
   final String userEmail;
+  final User user;
 
-  ProfilePage({required this.userEmail});
+  ProfilePage({required this.user, required this.userEmail});
+
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -19,21 +20,46 @@ class ProfilePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              GestureDetector(
+  onTap: () {print("avatar");},
+  child: CircleAvatar(
+    radius: 50,
+    backgroundColor: Colors.white,
+    child: Icon(
+      Icons.account_circle,
+      size: 70,
+      color: Colors.black,
+    ),
+  ),
+),
+
+              SizedBox(height: 20),
               Text(
-                'User Name: '+userEmail,
-                style: TextStyle(fontSize: 20,color: Colors.white),
+                'User Email:',
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              SizedBox(height: 8),
+              Text(
+                userEmail,
+                style: TextStyle(fontSize: 18, color: Colors.white),
               ),
               SizedBox(height: 20),
-              TextButton(
+              Text(
+                'User Logged Through :',
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+              SizedBox(height: 8),
+              Text(
+                user.displayName ?? 'N/A',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
                 onPressed: () {
                   Navigator.popUntil(context, (route) => route.isFirst);
                 },
-                child: Text(
-                  'Logout',
-                  style: TextStyle(
-                    color: Colors.red,
-                  ),
-                ),
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                child: Text('Logout'),
               ),
             ],
           ),

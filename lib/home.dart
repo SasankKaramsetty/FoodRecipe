@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:foodrecipe/ProfilePage.dart';
 import 'package:foodrecipe/RecipeDetails.dart';
@@ -8,8 +10,10 @@ import 'package:foodrecipe/model.dart';
 import 'package:http/http.dart';
 
 class Home extends StatefulWidget {
-  late final String userEmail;
-  Home({required this.userEmail});
+  final User user;
+  final String userEmail;
+
+  Home({required this.user, required this.userEmail});
   @override
   _HomeState createState() => _HomeState();
   
@@ -104,7 +108,7 @@ class _HomeState extends State<Home> {
                             Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ProfilePage(userEmail: widget.userEmail),
+        builder: (context) => ProfilePage(user:widget.user,userEmail: widget.userEmail),
       ),
     );
                           },

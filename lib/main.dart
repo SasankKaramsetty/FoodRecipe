@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LandingPage(),
-        // '/profile': (context) => ProfilePage(userEmail: ,),
       },
     );
   }
