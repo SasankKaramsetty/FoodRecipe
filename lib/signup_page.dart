@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodrecipe/home.dart';
 
@@ -11,6 +13,17 @@ class _SignupPageState extends State<SignupPage> {
   bool _isConfirmPasswordVisible = false;
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? _user;
+  @override
+  void initState() {
+    super.initState();
+    _auth.authStateChanges().listen((event) {
+      setState(() {
+        _user = event; //set the user to be event passed
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +77,9 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: Colors.white,
                     ),
                     onPressed: () {
@@ -92,7 +107,9 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      _isConfirmPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
                       color: Colors.white,
                     ),
                     onPressed: () {
@@ -106,7 +123,8 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
-                  if (_passwordController.text == _confirmPasswordController.text) {
+                  if (_passwordController.text ==
+                      _confirmPasswordController.text) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => Home()),
@@ -120,28 +138,34 @@ class _SignupPageState extends State<SignupPage> {
                     );
                   }
                 },
-                child: Text('Sign Up',style: TextStyle(color: Colors.black),),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
+                child: Text(
+                  'Sign Up',
+                  style: TextStyle(color: Colors.black),
                 ),
-              ),
-              SizedBox(height: 16.0),
-
-              ElevatedButton.icon(
-                onPressed: () {
-                },
-                icon: Icon(Icons.g_translate,color: Colors.black),
-                label: Text('Sign Up with Google',style: TextStyle(color: Colors.black),),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.white,
                 ),
               ),
               SizedBox(height: 16.0),
               ElevatedButton.icon(
-                onPressed: () {
-                 },
-                icon: Icon(Icons.facebook,color: Colors.black),
-                label: Text('Sign Up with Facebook',style: TextStyle(color: Colors.black),),
+                onPressed: _handleGoogleSignUP,
+                icon: Icon(Icons.g_translate, color: Colors.black),
+                label: Text(
+                  'Sign Up with Google',
+                  style: TextStyle(color: Colors.black),
+                ),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.white,
+                ),
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton.icon(
+                onPressed: () {},
+                icon: Icon(Icons.facebook, color: Colors.black),
+                label: Text(
+                  'Sign Up with Facebook',
+                  style: TextStyle(color: Colors.black),
+                ),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.white,
                 ),
@@ -151,5 +175,18 @@ class _SignupPageState extends State<SignupPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleGoogleSignUP() async {
+    try {
+      GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+      await _auth.signInWithProvider(_googleAuthProvider);
+       Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Home()),
+    );
+    } catch (error) {
+      print(error);
+    }
   }
 }

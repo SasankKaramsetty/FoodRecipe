@@ -7,6 +7,7 @@ import 'package:foodrecipe/model.dart';
 import 'package:http/http.dart';
 
 class Home extends StatefulWidget {
+  late final String username;
   @override
   _HomeState createState() => _HomeState();
 }
