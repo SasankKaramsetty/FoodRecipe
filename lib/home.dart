@@ -1,15 +1,18 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:foodrecipe/ProfilePage.dart';
 import 'package:foodrecipe/RecipeDetails.dart';
 import 'package:foodrecipe/RecipeView.dart';
 import 'package:foodrecipe/model.dart';
 import 'package:http/http.dart';
 
 class Home extends StatefulWidget {
-  late final String username;
+  late final String userEmail;
+  Home({required this.userEmail});
   @override
   _HomeState createState() => _HomeState();
+  
 }
 
 class _HomeState extends State<Home> {
@@ -98,7 +101,12 @@ class _HomeState extends State<Home> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/profile');
+                            Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfilePage(userEmail: widget.userEmail),
+      ),
+    );
                           },
                           child: Container(
                             padding: EdgeInsets.all(10),
@@ -124,10 +132,10 @@ class _HomeState extends State<Home> {
                       SizedBox(
                         height: 10,
                       ),
-                      Text(
-                        "Let's Cook Something New!",
-                        style: TextStyle(fontSize: 20, color: Colors.white),
-                      )
+                      // Text(
+                      //   "Let's Cook Something New!",
+                      //   style: TextStyle(fontSize: 20, color: Colors.white),
+                      // )
                     ],
                   ),
                 ),

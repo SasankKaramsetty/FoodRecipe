@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
+  final String userEmail;
+
+  ProfilePage({required this.userEmail});
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -15,8 +20,8 @@ class ProfilePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'User Name',
-                style: TextStyle(fontSize: 20),
+                'User Name: '+userEmail,
+                style: TextStyle(fontSize: 20,color: Colors.white),
               ),
               SizedBox(height: 20),
               TextButton(

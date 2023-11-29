@@ -11,16 +11,20 @@ class SignupPage extends StatefulWidget {
 class _SignupPageState extends State<SignupPage> {
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  String _email = "";
+  String _password = "";
   User? _user;
   @override
   void initState() {
     super.initState();
     _auth.authStateChanges().listen((event) {
       setState(() {
-        _user = event; //set the user to be event passed
+        _user = event; 
       });
     });
   }
@@ -47,6 +51,7 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               TextField(
                 keyboardType: TextInputType.emailAddress,
+                controller: _emailController,
                 style: TextStyle(color: Colors.white),
                 cursorColor: Colors.white,
                 decoration: InputDecoration(
@@ -59,6 +64,11 @@ class _SignupPageState extends State<SignupPage> {
                     borderSide: BorderSide(color: Colors.white),
                   ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    _email = value;
+                  });
+                },
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -89,6 +99,11 @@ class _SignupPageState extends State<SignupPage> {
                     },
                   ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    _password = value;
+                  });
+                },
               ),
               SizedBox(height: 16.0),
               TextField(
@@ -125,10 +140,7 @@ class _SignupPageState extends State<SignupPage> {
                 onPressed: () {
                   if (_passwordController.text ==
                       _confirmPasswordController.text) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Home()),
-                    );
+                    _emailsignup();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -176,17 +188,47 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-
   Future<void> _handleGoogleSignUP() async {
+    BuildContext currentContext = context;
     try {
       GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-      await _auth.signInWithProvider(_googleAuthProvider);
-       Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Home()),
-    );
+      UserCredential userCredential =
+          await _auth.signInWithProvider(_googleAuthProvider);
+      String userEmail =
+          userCredential.user?.email ?? ""; 
+
+      Navigator.push(
+        currentContext,
+        MaterialPageRoute(builder: (context) => Home(userEmail: userEmail)),
+      );
     } catch (error) {
       print(error);
     }
   }
+
+  Future<void> _emailsignup() async {
+  BuildContext currentContext = context; 
+
+  try {
+    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      email: _email,
+      password: _password,
+    );
+    print("User Registered email: ${userCredential.user!.email}");
+    Navigator.push(
+      currentContext,
+      MaterialPageRoute(builder: (context) => Home(userEmail: userCredential.user!.email!)),
+    );
+  } catch (error) {
+    print(error);
+    if (error is FirebaseAuthException) {
+      if (error.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      } else {
+        print('Error during registration: ${error.message}');
+      }
+    }
+  }
+}
+
 }
