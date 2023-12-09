@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodrecipe/home.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -24,7 +27,7 @@ class _SignupPageState extends State<SignupPage> {
     super.initState();
     _auth.authStateChanges().listen((event) {
       setState(() {
-        _user = event; 
+        _user = event;
       });
     });
   }
@@ -172,7 +175,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
               SizedBox(height: 16.0),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _handleFacebookSignUp,
                 icon: Icon(Icons.facebook, color: Colors.black),
                 label: Text(
                   'Sign Up with Facebook',
@@ -188,74 +191,205 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-Future<void> _emailsignup(BuildContext context) async {
-  try {
-    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+// Future<void> _emailsignup(BuildContext context) async {
+//   try {
+//     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+//       email: _emailController.text,
+//       password: _passwordController.text,
+//     );
 
-    await userCredential.user!.updateProfile(displayName: 'Email Signup');
-    await userCredential.user!.reload();
-    userCredential = await _auth.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+//     await userCredential.user!.updateProfile(displayName: 'Email Signup');
+//     await userCredential.user!.reload();
+//     userCredential = await _auth.signInWithEmailAndPassword(
+//       email: _emailController.text,
+//       password: _passwordController.text,
+//     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Home(
-          user: userCredential.user!,
-          userEmail: userCredential.user!.email ?? '',
-        ),
-      ),
-    );
-  } catch (error) {
-    
-   if (error is FirebaseAuthException) {
-      String errorMessage = 'Error during registration: ${error.message}';
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => Home(
+//           user: userCredential.user!,
+//           userEmail: userCredential.user!.email ?? '',
+//         ),
+//       ),
+//     );
+//   } catch (error) {
 
-      if (error.code == 'email-already-in-use') {
-        errorMessage = 'The account already exists for that email.';
-      } else if (error.code == 'weak-password') {
-        errorMessage = 'Password should be at least 6 characters.';
-      }
+//    if (error is FirebaseAuthException) {
+//       String errorMessage = 'Error during registration: ${error.message}';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
+//       if (error.code == 'email-already-in-use') {
+//         errorMessage = 'The account already exists for that email.';
+//       } else if (error.code == 'weak-password') {
+//         errorMessage = 'Password should be at least 6 characters.';
+//       }
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text(errorMessage),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     } else {
+//       print('Unexpected error during registration: $error');
+//     }
+//   }
+// }
+
+  Future<void> _emailsignup(BuildContext context) async {
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      await userCredential.user!.updateProfile(displayName: 'Email Signup');
+      await userCredential.user!.reload();
+      userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      // Default image URL from the assets
+      String defaultImageUrl = 'assets/recipe_log.png';
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            userEmail: userCredential.user!.email ?? '',
+            // userName: ,
+            userImageURL: defaultImageUrl,
+          ),
         ),
       );
-    } else {
-      print('Unexpected error during registration: $error');
+    } catch (error) {
+      if (error is FirebaseAuthException) {
+        String errorMessage = 'Error during registration: ${error.message}';
+
+        if (error.code == 'email-already-in-use') {
+          errorMessage = 'The account already exists for that email.';
+        } else if (error.code == 'weak-password') {
+          errorMessage = 'Password should be at least 6 characters.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        print('Unexpected error during registration: $error');
+      }
+    }
+  }
+
+// Future<void> _handleGoogleSignUP() async {
+//   try {
+//     GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+//     UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
+//     String userEmail = userCredential.user?.email ?? '';
+//     await userCredential.user!.updateProfile(displayName: 'google');
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//         builder: (context) => Home(user: userCredential.user!, userEmail: userEmail,),
+//       ),
+//     );
+//   } catch (error) {
+//     print(error);
+//   }
+// }
+  Future<void> _handleGoogleSignUP() async {
+    try {
+      GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+      UserCredential userCredential =
+          await _auth.signInWithProvider(_googleAuthProvider);
+      String userEmail = userCredential.user?.email ?? '';
+
+      // Get the user's image URL from the Google sign-in provider data
+      String? userImageURL =
+          userCredential.additionalUserInfo?.profile?['picture'] as String?;
+
+      await userCredential.user!.updateProfile(displayName: 'google');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            userEmail: userEmail,
+            userImageURL: userImageURL ??
+                '', // Provide a default image URL if not available
+          ),
+        ),
+      );
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> _handleFacebookSignUp() async {
+    try {
+      print('sasank1');
+      print("called facebook auth");
+      await FacebookAuth.instance.logOut();
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      print('2');
+      // User canceled the sign-in process
+
+      print('3');
+      final AccessToken accessToken = result.accessToken!;
+      final AuthCredential credential =
+          FacebookAuthProvider.credential(accessToken.token);
+      print('4');
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      String userEmail = userCredential.user?.email ?? '';
+      await userCredential.user!.updateProfile(displayName: 'facebook');
+
+      // Fetch the Facebook profile image URL
+      // final graphResponse = await http.get(
+      //   Uri.parse(
+      //       'https://graph.facebook.com/v14.0/${accessToken.userId}/picture?redirect=false&type=large'),
+      // );
+      print('5');
+      final graphResponse = await http.get(
+        Uri.parse('https://graph.facebook.com/v14.0/me?fields=id,name,email'),
+        headers: {'Authorization': 'Bearer ${accessToken.token}'},
+      );
+      print('6');
+
+      final Map<String, dynamic> userData = json.decode(graphResponse.body);
+        String facebookName = userData['name'] ?? '';
+        String facebookEmail = userData['email'] ?? '';
+
+      String defaultImageUrl = 'assets/recipe_log.png';
+      print('7');
+      print('Facebook login successful:');
+      print('User Email: $facebookEmail');
+      // print('Facebook Image URL: $facebookImageURL');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            // username:facebookName,
+            userEmail: facebookName,
+            userImageURL: defaultImageUrl,
+          ),
+        ),
+      );
+      if (result.status == LoginStatus.cancelled) {
+        return;
+      }
+    } catch (error) {
+      print("Facebook authentication error: $error");
     }
   }
 }
-
-
-  
-Future<void> _handleGoogleSignUP() async {
-  try {
-    GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-    UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
-    String userEmail = userCredential.user?.email ?? '';
-    await userCredential.user!.updateProfile(displayName: 'google');
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Home(user: userCredential.user!, userEmail: userEmail),
-      ),
-    );
-  } catch (error) {
-    print(error);
-  }
-}
-
-
-}
-
-
-
-

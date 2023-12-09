@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   final String userEmail;
   final User user;
-
+  // final String userName;
   ProfilePage({required this.user, required this.userEmail});
 
   @override
@@ -21,18 +21,19 @@ class ProfilePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-  onTap: () {print("avatar");},
-  child: CircleAvatar(
-    radius: 50,
-    backgroundColor: Colors.white,
-    child: Icon(
-      Icons.account_circle,
-      size: 70,
-      color: Colors.black,
-    ),
-  ),
-),
-
+                onTap: () {
+                  print("avatar");
+                },
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.account_circle,
+                    size: 70,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
               SizedBox(height: 20),
               Text(
                 'User Email:',
@@ -53,6 +54,16 @@ class ProfilePage extends StatelessWidget {
                 user.displayName ?? 'N/A',
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
+               SizedBox(height: 20),
+              // Text(
+              //   'User Name :',
+              //   style: TextStyle(fontSize: 20, color: Colors.white),
+              // ),
+              // SizedBox(height: 8),
+              // Text(
+              //   userName,
+              //   style: TextStyle(fontSize: 18, color: Colors.white),
+              // ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {

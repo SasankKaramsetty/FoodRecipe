@@ -1,7 +1,10 @@
+import 'dart:convert';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:foodrecipe/home.dart';
+import 'package:http/http.dart' as http;
 
 class SigninPage extends StatefulWidget {
   @override
@@ -16,31 +19,33 @@ class _SigninPageState extends State<SigninPage> {
   String _email = "";
   String _password = "";
   void _signinemail() async {
-    BuildContext currentContext = context; 
+    BuildContext currentContext = context;
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _email,
         password: _password,
       );
       User user = userCredential.user!;
+      String defaultImageUrl = 'assets/recipe_log.png';
       String userEmail = user.email!;
       await userCredential.user!.updateProfile(displayName: 'Email Signup');
-    await userCredential.user!.reload();
-    userCredential = await _auth.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+      await userCredential.user!.reload();
+      userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
       // Use the captured context here
       Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Home(
-          user: userCredential.user!,
-          userEmail: userCredential.user!.email ?? '',
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            userEmail: userCredential.user!.email ?? '',
+            userImageURL: defaultImageUrl,
+          ),
         ),
-      ),
-    );
+      );
     } catch (error) {
       String errorMessage = 'An error occurred. Please try again.';
 
@@ -63,24 +68,35 @@ class _SigninPageState extends State<SigninPage> {
       print(error);
     }
   }
-  void _handleGoogleSignIN() async {
-  try {
-    GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-    UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
-    
-    String userEmail = userCredential.user?.email ?? "";
-    User user = userCredential.user!;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Home(user: user, userEmail: userEmail),
-      ),
-    );
-  } catch (error) {
-    print(error);
+  void _handleGoogleSignIN() async {
+    try {
+      GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
+      UserCredential userCredential =
+          await _auth.signInWithProvider(_googleAuthProvider);
+      String userEmail = userCredential.user?.email ?? '';
+
+      // Get the user's image URL from the Google sign-in provider data
+      String? userImageURL =
+          userCredential.additionalUserInfo?.profile?['picture'] as String?;
+
+      await userCredential.user!.updateProfile(displayName: 'google');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            userEmail: userEmail,
+            userImageURL: userImageURL ??
+                '', // Provide a default image URL if not available
+          ),
+        ),
+      );
+    } catch (error) {
+      print(error);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +212,7 @@ class _SigninPageState extends State<SigninPage> {
 
               ElevatedButton.icon(
                 onPressed: () {
-                  // Implement your Facebook sign-in logic here
+                  _handleFacebookSignIn();
                 },
                 icon: Icon(Icons.facebook, color: Colors.black),
                 label: Text(
@@ -213,7 +229,58 @@ class _SigninPageState extends State<SigninPage> {
       ),
     );
   }
-}
 
-void _handleGoogleSignIN() {
+  Future<void> _handleFacebookSignIn() async {
+    try {
+      await FacebookAuth.instance.logOut();
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      // User canceled the sign-in process
+      if (result.status == LoginStatus.cancelled) {
+        return;
+      }
+
+      final AccessToken accessToken = result.accessToken!;
+      final AuthCredential credential =
+          FacebookAuthProvider.credential(accessToken.token);
+
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      String userEmail = userCredential.user?.email ?? '';
+      await userCredential.user!.updateProfile(displayName: 'facebook');
+
+      // Fetch the Facebook profile image URL
+      final graphResponse = await http.get(
+        Uri.parse('https://graph.facebook.com/v14.0/me?fields=id,name,email'),
+        headers: {'Authorization': 'Bearer ${accessToken.token}'},
+      );
+
+      print('Facebook Graph API Response:');
+      print(graphResponse.body); // Print the response body
+
+      final Map<String, dynamic> profileData = json.decode(graphResponse.body);
+
+      // Adjust the key based on the actual structure of the response
+      final String facebookImageURL = profileData['url'] ?? '';
+
+      print('Facebook login successful:');
+      print('User Email: $userEmail');
+      print('Facebook Image URL: $facebookImageURL');
+
+      // Navigate to the home page or perform other actions
+      // For example, navigate to the Home screen:
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Home(
+            user: userCredential.user!,
+            userEmail: userEmail,
+            userImageURL: facebookImageURL,
+          ),
+        ),
+      );
+    } catch (error) {
+      print("Facebook authentication error: $error");
+    }
+  }
 }

@@ -12,11 +12,15 @@ import 'package:http/http.dart';
 class Home extends StatefulWidget {
   final User user;
   final String userEmail;
-
-  Home({required this.user, required this.userEmail});
+  // final String userName;
+  final String userImageURL;
+  Home(
+      {required this.user,
+      required this.userEmail,
+      required this.userImageURL,});
+      // required this.userName
   @override
   _HomeState createState() => _HomeState();
-  
 }
 
 class _HomeState extends State<Home> {
@@ -106,11 +110,13 @@ class _HomeState extends State<Home> {
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ProfilePage(user:widget.user,userEmail: widget.userEmail),
-      ),
-    );
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(
+                                    user: widget.user,
+                                    userEmail: widget.userEmail),
+                              ),
+                            );
                           },
                           child: Container(
                             padding: EdgeInsets.all(10),
