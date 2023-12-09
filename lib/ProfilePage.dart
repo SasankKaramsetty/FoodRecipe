@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 class ProfilePage extends StatelessWidget {
   final String userEmail;
   final User user;
+  final String displayName;
   // final String userName;
-  ProfilePage({required this.user, required this.userEmail});
+  ProfilePage({required this.user, required this.userEmail,required this.displayName});
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +52,10 @@ class ProfilePage extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                user.displayName ?? 'N/A',
+                displayName,
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
-               SizedBox(height: 20),
+              SizedBox(height: 20),
               // Text(
               //   'User Name :',
               //   style: TextStyle(fontSize: 20, color: Colors.white),

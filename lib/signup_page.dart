@@ -191,52 +191,6 @@ class _SignupPageState extends State<SignupPage> {
       ),
     );
   }
-// Future<void> _emailsignup(BuildContext context) async {
-//   try {
-//     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-//       email: _emailController.text,
-//       password: _passwordController.text,
-//     );
-
-//     await userCredential.user!.updateProfile(displayName: 'Email Signup');
-//     await userCredential.user!.reload();
-//     userCredential = await _auth.signInWithEmailAndPassword(
-//       email: _emailController.text,
-//       password: _passwordController.text,
-//     );
-
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => Home(
-//           user: userCredential.user!,
-//           userEmail: userCredential.user!.email ?? '',
-//         ),
-//       ),
-//     );
-//   } catch (error) {
-
-//    if (error is FirebaseAuthException) {
-//       String errorMessage = 'Error during registration: ${error.message}';
-
-//       if (error.code == 'email-already-in-use') {
-//         errorMessage = 'The account already exists for that email.';
-//       } else if (error.code == 'weak-password') {
-//         errorMessage = 'Password should be at least 6 characters.';
-//       }
-
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(
-//           content: Text(errorMessage),
-//           backgroundColor: Colors.red,
-//         ),
-//       );
-//     } else {
-//       print('Unexpected error during registration: $error');
-//     }
-//   }
-// }
-
   Future<void> _emailsignup(BuildContext context) async {
     try {
       UserCredential userCredential =
@@ -263,6 +217,7 @@ class _SignupPageState extends State<SignupPage> {
             userEmail: userCredential.user!.email ?? '',
             // userName: ,
             userImageURL: defaultImageUrl,
+            displayName: 'Email',
           ),
         ),
       );
@@ -288,22 +243,6 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-// Future<void> _handleGoogleSignUP() async {
-//   try {
-//     GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
-//     UserCredential userCredential = await _auth.signInWithProvider(_googleAuthProvider);
-//     String userEmail = userCredential.user?.email ?? '';
-//     await userCredential.user!.updateProfile(displayName: 'google');
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => Home(user: userCredential.user!, userEmail: userEmail,),
-//       ),
-//     );
-//   } catch (error) {
-//     print(error);
-//   }
-// }
   Future<void> _handleGoogleSignUP() async {
     try {
       GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
@@ -317,14 +256,15 @@ class _SignupPageState extends State<SignupPage> {
 
       await userCredential.user!.updateProfile(displayName: 'google');
 
+      // var displayName;
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Home(
             user: userCredential.user!,
             userEmail: userEmail,
-            userImageURL: userImageURL ??
-                '', // Provide a default image URL if not available
+            userImageURL: userImageURL ?? 'default_image_url',
+            displayName:'Google', // Provide a default image URL if not available
           ),
         ),
       );
@@ -335,53 +275,37 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _handleFacebookSignUp() async {
     try {
-      print('sasank1');
-      print("called facebook auth");
       await FacebookAuth.instance.logOut();
       final LoginResult result = await FacebookAuth.instance.login();
 
-      print('2');
-      // User canceled the sign-in process
-
-      print('3');
       final AccessToken accessToken = result.accessToken!;
       final AuthCredential credential =
           FacebookAuthProvider.credential(accessToken.token);
-      print('4');
+
       UserCredential userCredential =
           await _auth.signInWithCredential(credential);
       String userEmail = userCredential.user?.email ?? '';
       await userCredential.user!.updateProfile(displayName: 'facebook');
-
-      // Fetch the Facebook profile image URL
-      // final graphResponse = await http.get(
-      //   Uri.parse(
-      //       'https://graph.facebook.com/v14.0/${accessToken.userId}/picture?redirect=false&type=large'),
-      // );
-      print('5');
       final graphResponse = await http.get(
         Uri.parse('https://graph.facebook.com/v14.0/me?fields=id,name,email'),
         headers: {'Authorization': 'Bearer ${accessToken.token}'},
       );
-      print('6');
 
       final Map<String, dynamic> userData = json.decode(graphResponse.body);
         String facebookName = userData['name'] ?? '';
         String facebookEmail = userData['email'] ?? '';
 
       String defaultImageUrl = 'assets/recipe_log.png';
-      print('7');
-      print('Facebook login successful:');
       print('User Email: $facebookEmail');
-      // print('Facebook Image URL: $facebookImageURL');
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Home(
             user: userCredential.user!,
             // username:facebookName,
-            userEmail: facebookName,
+            userEmail: facebookEmail,
             userImageURL: defaultImageUrl,
+            displayName: 'FaceBook',
           ),
         ),
       );
@@ -393,3 +317,7 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 }
+
+
+
+

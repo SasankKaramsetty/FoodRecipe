@@ -43,6 +43,7 @@ class _SigninPageState extends State<SigninPage> {
             user: userCredential.user!,
             userEmail: userCredential.user!.email ?? '',
             userImageURL: defaultImageUrl,
+            displayName: "Email",
           ),
         ),
       );
@@ -88,8 +89,8 @@ class _SigninPageState extends State<SigninPage> {
           builder: (context) => Home(
             user: userCredential.user!,
             userEmail: userEmail,
-            userImageURL: userImageURL ??
-                '', // Provide a default image URL if not available
+            userImageURL: userImageURL ?? 'default_image_url',
+            displayName:"Google"// Provide a default image URL if not available
           ),
         ),
       );
@@ -276,6 +277,7 @@ class _SigninPageState extends State<SigninPage> {
             user: userCredential.user!,
             userEmail: userEmail,
             userImageURL: facebookImageURL,
+            displayName: "FaceBook",
           ),
         ),
       );

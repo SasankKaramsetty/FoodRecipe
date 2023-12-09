@@ -14,11 +14,14 @@ class Home extends StatefulWidget {
   final String userEmail;
   // final String userName;
   final String userImageURL;
-  Home(
-      {required this.user,
-      required this.userEmail,
-      required this.userImageURL,});
-      // required this.userName
+  final String displayName;
+  Home({
+    required this.user,
+    required this.userEmail,
+    required this.userImageURL,
+    required this.displayName,
+  });
+  // required this.userName
   @override
   _HomeState createState() => _HomeState();
 }
@@ -43,19 +46,6 @@ class _HomeState extends State<Home> {
       print(recipe);
       print(recipe.appimgUrl);
       print(recipe.applabel);
-      // print(recipe.appcalories);
-      // print(recipe.apptime);
-      // print("Ingredients:");
-      // recipe.appIngredients.forEach((ingredient) {
-      //   print("  - ${ingredient.text}");
-      //   print("    Quantity: ${ingredient.quantity}");
-      //   print("    Measure: ${ingredient.measure}");
-      //   print("    Food: ${ingredient.food}");
-      //   print("    Weight: ${ingredient.weight}");
-      //   print("    Image: ${ingredient.image}");
-      //   print("    Steps:");
-      //   print("      ${ingredient.steps.join(', ')}");
-      // });
     });
   }
 
@@ -114,7 +104,7 @@ class _HomeState extends State<Home> {
                               MaterialPageRoute(
                                 builder: (context) => ProfilePage(
                                     user: widget.user,
-                                    userEmail: widget.userEmail),
+                                    userEmail: widget.userEmail,displayName: widget.displayName,),
                               ),
                             );
                           },
