@@ -60,8 +60,19 @@ Follow these steps to set up and run the FoodRecipe app locally:
      ```bash
      flutter run
      ```
+7. **Run Build Command:**
+   - Execute the following command to build the APK:
+     ```bash
+     flutter build apk
+     ```
 
-7. **Explore the App:**
+8. **Locate APK File:**
+   - After a successful build, locate the generated APK file. The default path is:
+     ```
+     build/app/outputs/flutter-apk/app-release.apk
+     ```
+
+9. **Explore the App:**
    - Once the app is running, explore the various features, including SignUp, Login, Recipe Search, and Recipe Details.
 
 
