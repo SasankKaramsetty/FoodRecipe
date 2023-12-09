@@ -19,7 +19,7 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
     _startTypingAnimation();
     _fadeController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500), // Adjust the duration as needed
+      duration: Duration(milliseconds: 1000),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_fadeController);
     _fadeController.forward();
@@ -59,7 +59,7 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Spacer(flex: 1),
-              // Your GIF goes here
+              
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Image.asset(
@@ -73,7 +73,7 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
                 child: ShaderMask(
               shaderCallback: (Rect bounds) {
                 return LinearGradient(
-                  colors: [Colors.white, Colors.black], // Change the colors as needed
+                  colors: [Colors.white, Colors.yellow], 
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ).createShader(bounds);
@@ -83,7 +83,7 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 40.0,
-                  color: Colors.white, // Starting color
+                  color: Colors.white, 
                 ),
               ),
             ),

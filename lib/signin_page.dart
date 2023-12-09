@@ -35,7 +35,6 @@ class _SigninPageState extends State<SigninPage> {
         password: _passwordController.text,
       );
 
-      // Use the captured context here
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -77,7 +76,6 @@ class _SigninPageState extends State<SigninPage> {
           await _auth.signInWithProvider(_googleAuthProvider);
       String userEmail = userCredential.user?.email ?? '';
 
-      // Get the user's image URL from the Google sign-in provider data
       String? userImageURL =
           userCredential.additionalUserInfo?.profile?['picture'] as String?;
 
@@ -119,7 +117,6 @@ class _SigninPageState extends State<SigninPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Email input field
               TextField(
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: Colors.white),

@@ -206,7 +206,6 @@ class _SignupPageState extends State<SignupPage> {
         password: _passwordController.text,
       );
 
-      // Default image URL from the assets
       String defaultImageUrl = 'assets/recipe_log.png';
 
       Navigator.push(
@@ -245,18 +244,17 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _handleGoogleSignUP() async {
     try {
+
       GoogleAuthProvider _googleAuthProvider = GoogleAuthProvider();
       UserCredential userCredential =
           await _auth.signInWithProvider(_googleAuthProvider);
       String userEmail = userCredential.user?.email ?? '';
 
-      // Get the user's image URL from the Google sign-in provider data
       String? userImageURL =
           userCredential.additionalUserInfo?.profile?['picture'] as String?;
 
       await userCredential.user!.updateProfile(displayName: 'google');
 
-      // var displayName;
       Navigator.push(
         context,
         MaterialPageRoute(
