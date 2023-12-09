@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-import 'openingpage.dart';
 
 
 //https://foodrecipe-aa5cd.firebaseapp.com/__/auth/handler
@@ -29,7 +28,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => OpenIngPage(),
+        '/': (context) => LandingPage(),
       },
     );
   }
