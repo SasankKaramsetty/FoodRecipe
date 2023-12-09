@@ -117,6 +117,16 @@ class _SigninPageState extends State<SigninPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(
+                'Login',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20,),
               TextField(
                   keyboardType: TextInputType.emailAddress,
                   style: TextStyle(color: Colors.white),
