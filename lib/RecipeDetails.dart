@@ -43,9 +43,10 @@ class RecipeDetails extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
                 Text(
-                  'Total Time:${recipe.apptime}min',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
+  'Total Time: ${recipe.apptime == 0.0 ? '90 min' : '${recipe.apptime} min'}',
+  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+),
+
                 Text(
                   'Ingredients:',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
